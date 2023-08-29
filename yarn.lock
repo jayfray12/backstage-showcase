@@ -1991,7 +1991,7 @@
     winston "^3.2.1"
     winston-transport "^4.5.0"
 
-"@backstage/backend-common@0.19.4", "@backstage/backend-common@^0.19.0", "@backstage/backend-common@^0.19.1", "@backstage/backend-common@^0.19.4":
+"@backstage/backend-common@0.19.4", "@backstage/backend-common@^0.19.0", "@backstage/backend-common@^0.19.1", "@backstage/backend-common@^0.19.3", "@backstage/backend-common@^0.19.4":
   version "0.19.4"
   resolved "https://registry.yarnpkg.com/@backstage/backend-common/-/backend-common-0.19.4.tgz#c27fb52ed69c9b28d9db85318cc6b5d161ba2322"
   integrity sha512-D0pXpfLVWFSPejsW9OQaebhpV3ujRtVNFlRYPGbcJRq3Q0oebnNCz+9KO/Aunv27oGi7Pl0OYDjY9hpMPH+O4w==
@@ -2089,7 +2089,7 @@
     express "^4.17.1"
     knex "^2.0.0"
 
-"@backstage/backend-tasks@0.5.7", "@backstage/backend-tasks@^0.5.4", "@backstage/backend-tasks@^0.5.7":
+"@backstage/backend-tasks@0.5.7", "@backstage/backend-tasks@^0.5.4", "@backstage/backend-tasks@^0.5.6", "@backstage/backend-tasks@^0.5.7":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@backstage/backend-tasks/-/backend-tasks-0.5.7.tgz#49b761bd8906fc4252a806305811e94ab6a21eb3"
   integrity sha512-ksWvho3zJQz6Xrx/ecLoi4Q4poLncexXKw/Y1aNhsVFbvBtajgGn+atsjSY9vK/GWv9WjFjr7n5zg+3Bm7mW8Q==
@@ -2699,7 +2699,7 @@
     yn "^4.0.0"
     zod "^3.21.4"
 
-"@backstage/plugin-catalog-backend@^1.12.3", "@backstage/plugin-catalog-backend@^1.12.4":
+"@backstage/plugin-catalog-backend@^1.12.1", "@backstage/plugin-catalog-backend@^1.12.3", "@backstage/plugin-catalog-backend@^1.12.4":
   version "1.12.4"
   resolved "https://registry.yarnpkg.com/@backstage/plugin-catalog-backend/-/plugin-catalog-backend-1.12.4.tgz#d1d932777777eda83ffd81dcd60a5b878eb2da4f"
   integrity sha512-sgImzpaCkIKCGLDC9jKkacOZ+EOBFUd/YAX2Ku4A4GvLQvf/gK5+gJ+rO6YKXz3tGSxyylztuCMw/GPj05BWpw==
@@ -4993,6 +4993,18 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.3.tgz#e45e384e4b8ec16bce2fd903af78450f6bf7ec98"
   integrity sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==
 
+"@janus-idp/backstage-plugin-3scale-backend@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@janus-idp/backstage-plugin-3scale-backend/-/backstage-plugin-3scale-backend-1.1.1.tgz#0f71d99aeba6cb89fa87ef1ec171aede5cc3630c"
+  integrity sha512-ybVzV4FIQrubeGmCPvZYpuZ4njimllNcTYhsbHVuiL5SgWqQf6omCrZfzNFduuSAvm4g0rWrN+TOkmGU9yWFEQ==
+  dependencies:
+    "@backstage/backend-common" "^0.19.1"
+    "@backstage/backend-tasks" "^0.5.4"
+    "@backstage/catalog-model" "^1.4.1"
+    "@backstage/config" "^1.0.8"
+    "@backstage/plugin-catalog-node" "^1.4.0"
+    winston "^3.2.1"
+
 "@janus-idp/backstage-plugin-analytics-provider-segment@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@janus-idp/backstage-plugin-analytics-provider-segment/-/backstage-plugin-analytics-provider-segment-1.1.1.tgz#80d37e3901fc1e84d80a0e302156ae6d51309d25"
@@ -5727,6 +5739,24 @@
     "@babel/runtime" "^7.4.4"
     prop-types "^15.7.2"
     react-is "^16.8.0 || ^17.0.0"
+
+"@microcks/microcks-backstage-provider@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@microcks/microcks-backstage-provider/-/microcks-backstage-provider-0.0.3.tgz#3ce0ba3a18f2f092332f9663870e3b96c18fa3b0"
+  integrity sha512-H7RHKBBmxh9ewdkorwq1DbXcFFv2oiZG9x2iXIfVOEduXHOrb0iH5DCXHqoEC+ISlIoTEh31dTRde9dGV41r+Q==
+  dependencies:
+    "@backstage/backend-common" "^0.19.3"
+    "@backstage/backend-tasks" "^0.5.6"
+    "@backstage/catalog-model" "^1.4.1"
+    "@backstage/config" "^1.0.8"
+    "@backstage/plugin-catalog-backend" "^1.12.1"
+    "@types/express" "*"
+    express "^4.17.3"
+    express-promise-router "^4.1.0"
+    js-base64 "^3.7.3"
+    node-fetch "^2.6.7"
+    winston "^3.2.1"
+    yn "^4.0.0"
 
 "@mswjs/cookies@^0.2.2":
   version "0.2.2"
@@ -17291,7 +17321,7 @@ joycon@^3.0.1:
   resolved "https://registry.yarnpkg.com/joycon/-/joycon-3.1.1.tgz#bce8596d6ae808f8b68168f5fc69280996894f03"
   integrity sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==
 
-js-base64@^3.6.0:
+js-base64@^3.6.0, js-base64@^3.7.3:
   version "3.7.5"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.5.tgz#21e24cf6b886f76d6f5f165bfcd69cc55b9e3fca"
   integrity sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==
