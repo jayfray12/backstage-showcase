@@ -7,15 +7,18 @@ app:
       writeKey: temp
 
 organization:
-  name: Janus IDP
+  name: My Org
 
 backend:
+  auth:
+    keys:
+      - secret: temp
   baseUrl: http://localhost:7007
   listen:
     port: 7007
   csp:
     connect-src:
-      - "'self'"
+      - 'self'
       - 'http:'
       - 'https:'
   cors:
@@ -25,10 +28,10 @@ backend:
   database:
     client: better-sqlite3
     connection: ':memory:'
-  cache:
-    store: memory
 
-proxy: []
+proxy:
+  skipInvalidProxies: true
+  endpoints: {}
 
 integrations:
   github:
@@ -43,6 +46,27 @@ integrations:
           webhookSecret: temp
           privateKey: |
             temp
+
+  bitbucketServer:
+    - host: bitbucket.com
+      apiBaseUrl: temp
+      username: temp
+      password: temp
+  gitlab:
+    - host: gitlab.com
+      token: temp
+
+argocd:
+  appLocatorMethods:
+    - type: 'config'
+      instances:
+        - name: argoInstance1
+          url: temp
+          token: temp
+        - name: argoInstance2
+          url: temp
+          token: temp
+
 auth:
   environment: development
   providers:
@@ -57,6 +81,12 @@ techdocs:
     runIn: local
   publisher:
     type: awsS3
+
+lighthouse:
+  baseUrl: temp
+
+dynatrace:
+  baseUrl: temp
 
 catalog:
   import:

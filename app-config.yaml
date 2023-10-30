@@ -7,17 +7,31 @@ app:
       writeKey: ${SEGMENT_WRITE_KEY}
       maskIP: ${SEGMENT_MASK_IP} # prevents IP addresses from being sent if true
       testMode: ${SEGMENT_TEST_MODE} # prevents data from being sent if true
-
+  branding:
+    fullLogo: ${BASE64_EMBEDDED_FULL_LOGO}
+    iconLogo: ${BASE64_EMBEDDED_ICON_LOGO}
+    theme:
+      light:
+        primaryColor: ${PRIMARY_LIGHT_COLOR}
+        headerColor1: ${HEADER_LIGHT_COLOR_1}
+        headerColor2: ${HEADER_LIGHT_COLOR_2}
+        navigationIndicatorColor: ${NAV_INDICATOR_LIGHT_COLOR}
+      dark:
+        primaryColor: ${PRIMARY_DARK_COLOR}
+        headerColor1: ${HEADER_DARK_COLOR_1}
+        headerColor2: ${HEADER_DARK_COLOR_2}
+        navigationIndicatorColor: ${NAV_INDICATOR_DARK_COLOR}
 organization:
-  name: Janus IDP
+  name: My Org
 
 backend:
-  # Used for enabling authentication, secret is shared by all backend plugins
+  # Required for authentication. This secret is shared by all backend plugins.
+  # In development mode a temporary secret is automatically created.
   # See https://backstage.io/docs/auth/service-to-service-auth for
   # information on the format
   # auth:
   #   keys:
-  #     - secret: ${BACKEND_SECRET}
+  #     - secret: ${BACKEND_AUTH_SECRET}
   baseUrl: http://localhost:7007
   listen:
     port: 7007
@@ -46,8 +60,6 @@ backend:
   database:
     client: better-sqlite3
     connection: ':memory:'
-  cache:
-    store: memory
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
 integrations:
@@ -68,13 +80,21 @@ integrations:
 
   # Plugin: GitLab
   gitlab:
-    - host: gitlab.com
+    - host: ${GITLAB_HOST}
       token: ${GITLAB_TOKEN}
+      apiBaseUrl: ${GITLAB_API_BASE_URL}
 
   # Plugin: Azure DevOps
   azure:
     - host: dev.azure.com
       token: ${AZURE_TOKEN}
+
+  # Plugin: Bitbucket Server
+  bitbucketServer:
+    - host: ${BITBUCKET_SERVER_HOST}
+      apiBaseUrl: ${BITBUCKET_API_BASE_URL}
+      username: ${BITBUCKET_SERVER_USERNAME}
+      password: ${BITBUCKET_SERVER_PASSWORD}
 
 # Plugin: Azure DevOps
 azureDevOps:
@@ -83,53 +103,73 @@ azureDevOps:
   organization: ${AZURE_ORG}
 
 proxy:
-  ### Example for how to add a proxy endpoint for the frontend.
-  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
-  # '/test':
-  #   target: 'https://example.com'
-  #   changeOrigin: true
+  endpoints:
+    # Plugin: Quay
+    '/quay/api':
+      target: https://quay.io/
+      headers:
+        X-Requested-With: 'XMLHttpRequest'
+        # Uncomment the following line to access a private Quay Repository using a token
+        # Authorization: 'Bearer <YOUR TOKEN>'
+      changeOrigin: true
+      secure: true
 
-  # Plugin: Quay
-  '/quay/api':
-    target: https://quay.io/
-    headers:
-      X-Requested-With: 'XMLHttpRequest'
-      # Uncomment the following line to access a private Quay Repository using a token
-      # Authorization: 'Bearer <YOUR TOKEN>'
-    changeOrigin: true
-    secure: true
+    # Plugin: SonarQube
+    '/sonarqube':
+      # if not using sonarqube, assign SONARQUBE_URL to https://sonarcloud.io
+      # target: https://sonarcloud.io/api
+      target: ${SONARQUBE_URL}/api
+      allowedMethods: ['GET']
+      auth: ${SONARQUBE_TOKEN}
 
-  # Plugin: SonarQube
-  '/sonarqube':
-    # if not using sonarqube, assign SONARQUBE_URL to https://sonarcloud.io
-    # target: https://sonarcloud.io/api
-    target: ${SONARQUBE_URL}/api
-    allowedMethods: ['GET']
-    auth: ${SONARQUBE_TOKEN}
+    # Plugin: Jenkins
+    '/jenkins/api':
+      target: ${JENKINS_URL}
+      headers:
+        Authorization: ${JENKINS_TOKEN}
 
-  # Plugin: Jenkins
-  '/jenkins/api':
-    target: ${JENKINS_URL}
-    headers:
-      Authorization: ${JENKINS_TOKEN}
+    # Plugin: Jira
+    '/jira/api':
+      target: ${JIRA_URL}
+      headers:
+        Authorization: ${JIRA_TOKEN}
+        Accept: 'application/json'
+        Content-Type: 'application/json'
+        X-Atlassian-Token: 'no-check'
+        User-Agent: ${JIRA_USER_AGENT}
 
-  # Plugin: Jira
-  '/jira/api':
-    target: ${JIRA_URL}
-    headers:
-      Authorization: ${JIRA_TOKEN}
-      Accept: 'application/json'
-      Content-Type: 'application/json'
-      X-Atlassian-Token: 'no-check'
-      User-Agent: ${JIRA_USER_AGENT}
+    # Plugin: Jfrog Artifactory
+    '/jfrog-artifactory/api':
+      target: ${ARTIFACTORY_URL}
+      headers:
+        Authorization: Bearer ${ARTIFACTORY_TOKEN}
+      # Change to "false" in case of using self hosted artifactory instance with a self-signed certificate
+      secure: ${ARTIFACTORY_SECURE}
 
-  # Plugin: Jfrog Artifactory
-  '/jfrog-artifactory/api':
-    target: ${ARTIFACTORY_URL}
-    headers:
-      Authorization: Bearer ${ARTIFACTORY_TOKEN}
-    # Change to "false" in case of using self hosted artifactory instance with a self-signed certificate
-    secure: ${ARTIFACTORY_SECURE}
+    # Plugin: PagerDuty
+    '/pagerduty':
+      target: https://api.pagerduty.com
+      headers:
+        Authorization: Token token=${PAGERDUTY_TOKEN}
+
+    # Plugin: Dynatrace
+    '/dynatrace':
+      target: ${DYNATRACE_API_URL}
+      headers:
+        # This API access token requires entities.read and problems.read permissions
+        # For more info on how to generate this token: https://www.dynatrace.com/support/help/dynatrace-api/basics/dynatrace-api-authentication
+        Authorization: 'Api-Token ${DYNATRACE_ACCESS_TOKEN}'
+
+    # Plugin: Nexus Repository Manager
+    '/nexus-repository-manager':
+      target: ${NEXUS_REPOSITORY_MANAGER_URL}
+      headers:
+        X-Requested-With: 'XMLHttpRequest'
+        # Uncomment the following line to access a private Nexus Repository Manager using a token
+        # Authorization: 'Bearer <NEXUS_REPOSITORY_MANAGER_TOKEN>'
+      changeOrigin: true
+      # Change to "false" in case of using self hosted Nexus Repository Manager instance with a self-signed certificate
+      secure: ${NEXUS_REPOSITORY_MANAGER_SECURE}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -159,8 +199,8 @@ auth:
     # Plugin: GitHub
     github:
       development:
-        clientId: ${GITHUB_APP_CLIENT_ID}
-        clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
 
 scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -190,27 +230,45 @@ catalog:
 
     # Plugin: OCM
     ocm:
-      operate-first:
+      default:
         name: ${OCM_HUB_NAME}
         url: ${OCM_HUB_URL}
         serviceAccountToken: ${moc_infra_token}
         owner: janus-authors
 
-    # Plugin: GitHub Discovery & Org Data
+    # Plugin: GitHub Org Data
     githubOrg:
       default:
         id: production
         orgUrl: ${GITHUB_ORG_URL}
+
+    # Plugin: GitHub Discovery
+    # uncomment following lines and set GITHUB_ORG to enable GitHub Discovery
+    # github:
+    #   providerId:
+    #     organization: "${GITHUB_ORG}"
+
+    # Plugin: AAP backend plugin
+    aap:
+      prod:
+        baseUrl: ${AAP_BASE_URL}
+        authorization: ${AAP_AUTH_TOKEN}
 
 # Plugin: Kubernetes, OCM
 kubernetes:
   customResources:
     - group: 'tekton.dev'
       apiVersion: 'v1beta1'
+      plural: 'pipelines'
+    - group: 'tekton.dev'
+      apiVersion: 'v1beta1'
       plural: 'pipelineruns'
     - group: 'tekton.dev'
       apiVersion: 'v1beta1'
       plural: 'taskruns'
+    - group: 'route.openshift.io'
+      apiVersion: 'v1'
+      plural: 'routes'
   serviceLocatorMethod:
     type: 'multiTenant'
   clusterLocatorMethods:
@@ -244,10 +302,27 @@ sonarqube:
 # Plugin: Jenkins
 jenkins:
   instances:
-  - name: default
-    baseUrl: ${JENKINS_URL}
-    username: ${JENKINS_USERNAME}
-    apiKey: ${JENKINS_TOKEN}
+    - name: default
+      baseUrl: ${JENKINS_URL}
+      username: ${JENKINS_USERNAME}
+      apiKey: ${JENKINS_TOKEN}
+
+# Plugin: PagerDuty
+pagerduty:
+  # uncomment the following, and provide a URL to override the default URL used for events
+  # eventsBaseUrl: <PagerDuty Event URL>
+
+# Plugin: Lighthouse
+lighthouse:
+  baseUrl: ${LIGHTHOUSE_BASEURL}
+
+# Plugin: Dynatrace
+dynatrace:
+  baseUrl: ${DYNATRACE_URL}
+
+# Plugin: Permission
+permission:
+  enabled: ${PERMISSION_ENABLED}
 
 enabled:
   kubernetes: ${K8S_ENABLED}
@@ -261,3 +336,6 @@ enabled:
   gitlab: ${GITLAB_ENABLED}
   azureDevOps: ${AZURE_ENABLED}
   jenkins: ${JENKINS_ENABLED}
+  permission: ${PERMISSION_ENABLED}
+  metrics: ${METRICS_ENABLED}
+  aap: ${AAP_ENABLED}

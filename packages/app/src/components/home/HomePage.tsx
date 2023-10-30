@@ -1,45 +1,48 @@
-import {
-  Content,
-  Header,
-  InfoCard,
-  Link,
-  Page,
-} from '@backstage/core-components';
+import { Content, Header, InfoCard, Page } from '@backstage/core-components';
 import {
   ComponentAccordion,
-  HomePageCompanyLogo,
   HomePageStarredEntities,
   HomePageToolkit,
-  type Tool,
 } from '@backstage/plugin-home';
 import { HomePageSearchBar } from '@backstage/plugin-search';
 import { SearchContextProvider } from '@backstage/plugin-search-react';
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
 import React from 'react';
-import useSWR from 'swr';
-import { ErrorReport, fetcher } from '../../common';
-import LogoFull from '../Root/LogoFull';
+import { makeStyles } from 'tss-react/mui';
+import { ErrorReport } from '../../common';
+import { useQuickAccess } from '../../hooks/useQuickAccess';
 
-type QuickAccessLinks = {
-  title: string;
-  isExpanded?: boolean;
-  links: (Tool & { iconUrl: string })[];
-};
-
-const useQuickAccessStyles = makeStyles({
+const useStyles = makeStyles()(theme => ({
   img: {
     height: '40px',
     width: 'auto',
   },
-});
+  searchBar: {
+    display: 'flex',
+    maxWidth: '60vw',
+    boxShadow: theme.shadows.at(1),
+    borderRadius: '50px',
+    margin: 'auto',
+  },
+  title: {
+    'div > div > div > div > p': {
+      textTransform: 'uppercase',
+    },
+  },
+  notchedOutline: {
+    borderStyle: 'none!important',
+  },
+}));
 
 const QuickAccess = () => {
-  const classes = useQuickAccessStyles();
-  const { data, error, isLoading } = useSWR(
-    '/homepage/data.json',
-    fetcher<QuickAccessLinks>,
-  );
+  const { classes } = useStyles();
+  const { data, error, isLoading } = useQuickAccess();
+
+  if (isLoading) {
+    return <CircularProgress />;
+  }
 
   if (!data) {
     return (
@@ -47,18 +50,14 @@ const QuickAccess = () => {
     );
   }
 
-  if (error) {
+  if (!isLoading && !data && error) {
     return (
       <ErrorReport title="Could not fetch data." errorText={error.toString()} />
     );
   }
 
-  if (isLoading) {
-    return <CircularProgress />;
-  }
-
   return (
-    <InfoCard title="Quick Access" noPadding>
+    <InfoCard title="Quick Access" noPadding className={classes.title}>
       {data.map(item => (
         <HomePageToolkit
           key={item.title}
@@ -84,65 +83,35 @@ const QuickAccess = () => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  searchBar: {
-    display: 'flex',
-    maxWidth: '60vw',
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[1],
-    padding: '8px 10px',
-    borderRadius: '50px',
-    margin: 'auto',
-  },
-  imageIcon: {
-    height: '40px',
-  },
-}));
-
-const useLogoStyles = makeStyles(theme => ({
-  container: {
-    margin: theme.spacing(5, 0, 1, 0),
-  },
-  svg: {
-    width: 'auto',
-    height: 80,
-  },
-}));
-
 export const HomePage = () => {
-  const classes = useStyles();
-  const { svg, container } = useLogoStyles();
+  const { classes } = useStyles();
 
   return (
     <SearchContextProvider>
       <Page themeId="home">
         <Header title="Welcome back!" />
         <Content>
-          <Grid container justifyContent="center" spacing={6}>
-            {window.location.origin.startsWith(
-              'https://janus-idp.apps.smaug.na.operate-first.cloud',
-            ) && (
-              <Grid item xs={12} md={12}>
-                <MuiAlert severity="warning">
-                  The Janus showcase URL has changed! Please, use this new link
-                  instead{' '}
-                  <Link to="https://showcase.janus-idp.io">
-                    showcase.janus-idp.io
-                  </Link>
-                </MuiAlert>
-              </Grid>
-            )}
-            <HomePageCompanyLogo
-              className={container}
-              logo={<LogoFull classes={{ svg }} />}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            {/* useStyles has a lower precedence over mui styles hence why we need to use css */}
+            <HomePageSearchBar
+              classes={{
+                root: classes.searchBar,
+              }}
+              InputProps={{
+                classes: {
+                  notchedOutline: classes.notchedOutline,
+                },
+              }}
+              placeholder="Search"
             />
-            <Grid item xs={12}>
-              <HomePageSearchBar
-                classes={{ root: classes.searchBar }}
-                placeholder="Search"
-              />
-            </Grid>
-            <Grid container item xs={12}>
+            <Grid container xs={12}>
               <Grid item xs={12} md={7}>
                 <QuickAccess />
               </Grid>
@@ -150,7 +119,7 @@ export const HomePage = () => {
                 <HomePageStarredEntities />
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
         </Content>
       </Page>
     </SearchContextProvider>

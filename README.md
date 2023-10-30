@@ -25,7 +25,7 @@ Our current list of plugins within the showcase app include:
 - [GitHub Pull Requests plugin](https://github.com/backstage/backstage/tree/master/plugins/github-pull-requests-board)
 - [GitHub Actions plugin](https://github.com/backstage/backstage/tree/master/plugins/github-actions)
 - [GitHub Issues plugin](https://github.com/backstage/backstage/tree/master/plugins/github-issues)
-- [GitHub Discovery & Org Data](https://backstage.io/docs/integrations/github/discovery)
+- [GitHub Discovery](https://backstage.io/docs/integrations/github/discovery) & [Org Data](https://backstage.io/docs/integrations/github/org)
 - [Security Insights plugin](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-security-insights)
 - [Keycloak plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/keycloak-backend)
 - [SonarQube plugin](https://roadie.io/backstage/plugins/sonarqube/)
@@ -36,6 +36,14 @@ Our current list of plugins within the showcase app include:
 - [Jira plugin](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-jira)
 - [Jfrog Artifactory plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/jfrog-artifactory)
 - [Segment plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/analytics-provider-segment)
+- [Datadog plugin](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-datadog)
+- [PagerDuty](https://github.com/backstage/backstage/tree/master/plugins/pagerduty)
+- [Lighthouse plugin](https://github.com/backstage/backstage/tree/master/plugins/lighthouse)
+- [Dynatrace plugin](https://github.com/backstage/backstage/tree/master/plugins/dynatrace)
+- [Gitlab Scaffolder actions](https://github.com/backstage/backstage/tree/master/plugins/scaffolder-backend-module-gitlab)
+- [Utils Scaffolder actions](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-module-utils)
+- [Nexus Repository Manager plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/nexus-repository-manager)
+- [AAP Backend plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/aap-backend)
 
 ## Getting Started
 

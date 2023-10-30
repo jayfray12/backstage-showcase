@@ -9,14 +9,15 @@
 import {
   CacheManager,
   DatabaseManager,
+  HostDiscovery,
   ServerTokenManager,
-  SingleHostDiscovery,
   UrlReaders,
   createServiceBuilder,
   getRootLogger,
   loadBackendConfig,
   notFoundHandler,
   useHotMemoize,
+  ServiceBuilder,
 } from '@backstage/backend-common';
 import { TaskScheduler } from '@backstage/backend-tasks';
 import { Config } from '@backstage/config';
@@ -32,20 +33,23 @@ import gitlab from './plugins/gitlab';
 import jenkins from './plugins/jenkins';
 import kubernetes from './plugins/kubernetes';
 import ocm from './plugins/ocm';
+import permission from './plugins/permission';
 import proxy from './plugins/proxy';
 import scaffolder from './plugins/scaffolder';
 import search from './plugins/search';
 import sonarqube from './plugins/sonarqube';
 import techdocs from './plugins/techdocs';
 import { PluginEnvironment } from './types';
+import { metricsHandler } from './metrics';
+import { RequestHandler } from 'express';
 
 function makeCreateEnv(config: Config) {
   const root = getRootLogger();
   const reader = UrlReaders.default({ logger: root, config });
-  const discovery = SingleHostDiscovery.fromConfig(config);
+  const discovery = HostDiscovery.fromConfig(config);
   const cacheManager = CacheManager.fromConfig(config);
   const databaseManager = DatabaseManager.fromConfig(config, { logger: root });
-  const tokenManager = ServerTokenManager.noop();
+  const tokenManager = ServerTokenManager.fromConfig(config, { logger: root });
   const taskScheduler = TaskScheduler.fromConfig(config);
 
   const identity = DefaultIdentityClient.create({
@@ -110,6 +114,34 @@ async function addPlugin(args: AddPlugin | AddOptionalPlugin): Promise<void> {
     );
     apiRouter.use(options?.path ?? `/${plugin}`, await router(pluginEnv));
     console.log(`Using backend plugin ${plugin}...`);
+  }
+}
+
+type AddRouterBase = {
+  name: string;
+  service: ServiceBuilder;
+  root: string;
+  router: RequestHandler | ReturnType<typeof Router>;
+};
+
+type AddRouterOptional = {
+  isOptional: true;
+  config: Config;
+} & AddRouterBase;
+
+type AddRouter = {
+  isOptional?: false;
+} & AddRouterBase;
+
+async function addRouter(args: AddRouter | AddRouterOptional): Promise<void> {
+  const { isOptional, name, service, root, router } = args;
+
+  const isRouterEnabled =
+    !isOptional || args.config.getOptionalBoolean(`enabled.${name}`) || false;
+
+  if (isRouterEnabled) {
+    console.log(`Adding router ${name} to backend...`);
+    service.addRouter(root, router);
   }
 }
 
@@ -202,14 +234,42 @@ async function main() {
     router: jenkins,
     isOptional: true,
   });
+  await addPlugin({
+    plugin: 'permission',
+    config,
+    apiRouter,
+    createEnv,
+    router: permission,
+    isOptional: true,
+  });
 
   // Add backends ABOVE this line; this 404 handler is the catch-all fallback
   apiRouter.use(notFoundHandler());
 
-  const service = createServiceBuilder(module)
-    .loadConfig(config)
-    .addRouter('/api', apiRouter)
-    .addRouter('', await app(appEnv));
+  const service = createServiceBuilder(module).loadConfig(config);
+
+  // Required routers
+  await addRouter({
+    name: 'api',
+    service,
+    root: '/api',
+    router: apiRouter,
+  });
+  await addRouter({
+    name: 'app',
+    service,
+    root: '',
+    router: await app(appEnv),
+  });
+
+  // Optional routers
+  await addRouter({
+    name: 'metrics',
+    config,
+    service,
+    root: '',
+    router: metricsHandler(),
+  });
 
   await service.start().catch(err => {
     console.log(err);

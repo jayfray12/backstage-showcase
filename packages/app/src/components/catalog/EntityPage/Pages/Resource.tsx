@@ -2,18 +2,17 @@ import {
   EntityAboutCard,
   EntityHasSystemsCard,
   EntityLayout,
+  EntityLinksCard,
   EntitySwitch,
 } from '@backstage/plugin-catalog';
 import { EntityCatalogGraphCard } from '@backstage/plugin-catalog-graph';
-import { Grid } from '@material-ui/core';
+import Grid from '@mui/material/Grid';
 import React from 'react';
 
 import {
-  ClusterAllocatableResourceCard,
   ClusterAvailableResourceCard,
   ClusterContextProvider,
   ClusterInfoCard,
-  ClusterStatusCard,
 } from '@janus-idp/backstage-plugin-ocm';
 import { isType } from '../../utils';
 import { entityWarningContent } from '../Content/EntityWarning';
@@ -25,46 +24,55 @@ export const resourcePage = (
         <Grid item xs={12}>
           {entityWarningContent}
         </Grid>
-
-        <Grid item md={6}>
-          <EntityAboutCard variant="gridItem" />
-        </Grid>
-
-        <Grid item md={6} xs={12}>
-          <EntityCatalogGraphCard variant="gridItem" height={400} />
-        </Grid>
-
-        <Grid item md={6}>
-          <EntityHasSystemsCard variant="gridItem" />
-        </Grid>
-      </Grid>
-    </EntityLayout.Route>
-    <EntityLayout.Route path="/status" title="status">
-      <EntitySwitch>
-        <EntitySwitch.Case if={isType('kubernetes-cluster')}>
-          <ClusterContextProvider>
-            <Grid container>
-              <Grid container item direction="column" xs={3}>
+        <EntitySwitch>
+          <EntitySwitch.Case if={isType('kubernetes-cluster')}>
+            <ClusterContextProvider>
+              <Grid container item direction="column" md={3}>
                 <Grid item>
-                  <ClusterStatusCard />
+                  <EntityLinksCard />
                 </Grid>
-
-                <Grid item>
-                  <ClusterAllocatableResourceCard />
-                </Grid>
-
                 <Grid item>
                   <ClusterAvailableResourceCard />
                 </Grid>
               </Grid>
-
-              <Grid item xs>
-                <ClusterInfoCard />
+              <Grid container item direction="column" md={9}>
+                <Grid item>
+                  <ClusterInfoCard />
+                </Grid>
+                <Grid item>
+                  <EntityCatalogGraphCard variant="gridItem" height={400} />
+                </Grid>
               </Grid>
+            </ClusterContextProvider>
+          </EntitySwitch.Case>
+          <EntitySwitch.Case
+            if={isType(['job_template', 'workflow_job_template'])}
+          >
+            <Grid item md={6}>
+              <EntityAboutCard variant="gridItem" />
             </Grid>
-          </ClusterContextProvider>
-        </EntitySwitch.Case>
-      </EntitySwitch>
+            <Grid item md={6}>
+              <EntityLinksCard />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <EntityCatalogGraphCard variant="gridItem" height={400} />
+            </Grid>
+          </EntitySwitch.Case>
+          <EntitySwitch.Case>
+            <Grid item md={6}>
+              <EntityAboutCard variant="gridItem" />
+            </Grid>
+
+            <Grid item md={6} xs={12}>
+              <EntityCatalogGraphCard variant="gridItem" height={400} />
+            </Grid>
+
+            <Grid item md={6}>
+              <EntityHasSystemsCard variant="gridItem" />
+            </Grid>
+          </EntitySwitch.Case>
+        </EntitySwitch>
+      </Grid>
     </EntityLayout.Route>
   </EntityLayout>
 );

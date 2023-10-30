@@ -34,16 +34,9 @@ jobs:
     name: Main Job
     runs-on: ubuntu-latest
 
-    env:
-      TECHDOCS_BUILDER_TYPE: external
-      TECHDOCS_GENERATOR_TYPE: local
-      TECHDOCS_PUBLISHER_TYPE: awsS3
-      SEGMENT_WRITE_KEY: temp
-      SEGMENT_TEST_MODE: true
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -53,14 +46,23 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
+      - name: Setup local Turbo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+
+      - name: Use app-config.example.yaml
+        run: rm app-config.yaml && mv app-config.example.yaml app-config.yaml
+
       - name: Install Dependencies
         run: |
           yarn install --frozen-lockfile
 
-      - name: Lint
+      - name: Prettier
         run: |
-          yarn prettier:check
-          yarn tsc
+          yarn run prettier:check
 
       - name: CI
-        run: yarn ci
+        run: yarn run ci
+
+      - name: Check Changeset
+        run: |
+          yarn changeset status --since=origin/main

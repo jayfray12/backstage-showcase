@@ -1,6 +1,11 @@
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
-import { AlertDisplay, OAuthRequestDialog } from '@backstage/core-components';
+import {
+  AlertDisplay,
+  OAuthRequestDialog,
+  ProxiedSignInPage,
+  SignInPage,
+} from '@backstage/core-components';
 import { ApiExplorerPage, apiDocsPlugin } from '@backstage/plugin-api-docs';
 import {
   CatalogEntityPage,
@@ -28,17 +33,26 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { UserSettingsPage } from '@backstage/plugin-user-settings';
 import { UnifiedThemeProvider } from '@backstage/theme';
+import LightIcon from '@mui/icons-material/WbSunny';
+import DarkIcon from '@mui/icons-material/Brightness2';
 import { OcmPage } from '@janus-idp/backstage-plugin-ocm';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { apis } from './apis';
 import { Root } from './components/Root';
-import Logo from './components/Root/LogoIcon';
 import { entityPage } from './components/catalog/EntityPage';
 import { HomePage } from './components/home/HomePage';
 import { LearningPaths } from './components/learningPaths/LearningPathsPage';
 import { SearchPage } from './components/search/SearchPage';
-import { janusTheme } from './themes/janus';
+import { LighthousePage } from '@backstage/plugin-lighthouse';
+import {
+  configApiRef,
+  githubAuthApiRef,
+  useApi,
+} from '@backstage/core-plugin-api';
+import { customLightTheme } from './themes/lightTheme';
+import { customDarkTheme } from './themes/darkTheme';
+import { useUpdateTheme } from './hooks/useUpdateTheme';
 
 const app = createApp({
   apis,
@@ -46,12 +60,14 @@ const app = createApp({
     bind(catalogPlugin.externalRoutes, {
       createComponent: scaffolderPlugin.routes.root,
       viewTechDoc: techdocsPlugin.routes.docRoot,
+      createFromTemplate: scaffolderPlugin.routes.selectedTemplate,
     });
     bind(apiDocsPlugin.externalRoutes, {
       registerApi: catalogImportPlugin.routes.importPage,
     });
     bind(scaffolderPlugin.externalRoutes, {
       registerComponent: catalogImportPlugin.routes.importPage,
+      viewTechDoc: techdocsPlugin.routes.docRoot,
     });
     bind(orgPlugin.externalRoutes, {
       catalogIndex: catalogPlugin.routes.catalogIndex,
@@ -59,14 +75,60 @@ const app = createApp({
   },
   themes: [
     {
-      id: 'janus',
-      title: 'Janus Theme',
+      id: 'light',
+      title: 'Light Theme',
       variant: 'light',
-      Provider: ({ children }) => (
-        <UnifiedThemeProvider theme={janusTheme} children={children} />
-      ),
+      icon: <LightIcon />,
+      Provider: ({ children }) => {
+        const themeColors = useUpdateTheme('light');
+        return (
+          <UnifiedThemeProvider
+            theme={customLightTheme(themeColors)}
+            children={children}
+          />
+        );
+      },
+    },
+    {
+      id: 'dark',
+      title: 'Dark Theme',
+      variant: 'dark',
+      icon: <DarkIcon />,
+      Provider: ({ children }) => {
+        const themeColors = useUpdateTheme('dark');
+        return (
+          <UnifiedThemeProvider
+            theme={customDarkTheme(themeColors)}
+            children={children}
+          />
+        );
+      },
     },
   ],
+  components: {
+    SignInPage: props => {
+      const configApi = useApi(configApiRef);
+      if (configApi.getString('auth.environment') === 'development') {
+        return (
+          <SignInPage
+            {...props}
+            title="Select a sign-in method"
+            align="center"
+            providers={[
+              'guest',
+              {
+                id: 'github-auth-provider',
+                title: 'GitHub',
+                message: 'Sign in using GitHub',
+                apiRef: githubAuthApiRef,
+              },
+            ]}
+          />
+        );
+      }
+      return <ProxiedSignInPage {...props} provider="oauth2Proxy" />;
+    },
+  },
 });
 
 // `routes` and every subsequent child needs to be static JSX, so the router can traverse the three without rendering.
@@ -92,7 +154,12 @@ const routes = (
         <ReportIssue />
       </TechDocsAddons>
     </Route>
-    <Route path="/create" element={<ScaffolderPage />} />
+    <Route
+      path="/create"
+      element={
+        <ScaffolderPage headerOptions={{ title: 'Golden Path Templates' }} />
+      }
+    />
     <Route path="/api-docs" element={<ApiExplorerPage />} />
     <Route
       path="/tech-radar"
@@ -111,8 +178,9 @@ const routes = (
     </Route>
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
-    <Route path="/ocm" element={<OcmPage logo={<Logo />} />} />
+    <Route path="/ocm" element={<OcmPage />} />
     <Route path="/learning-paths" element={<LearningPaths />} />
+    <Route path="/lighthouse" element={<LighthousePage />} />
   </FlatRoutes>
 );
 

@@ -1,21 +1,14 @@
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import React from 'react';
-import { makeStyles, Theme, Grid, Paper } from '@material-ui/core';
 
 import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
 import {
-  catalogApiRef,
   CATALOG_FILTER_EXISTS,
+  catalogApiRef,
 } from '@backstage/plugin-catalog-react';
 import { TechDocsSearchResultListItem } from '@backstage/plugin-techdocs';
 
-import { SearchType } from '@backstage/plugin-search';
-import {
-  SearchBar,
-  SearchFilter,
-  SearchResult,
-  SearchPagination,
-  useSearch,
-} from '@backstage/plugin-search-react';
 import {
   CatalogIcon,
   Content,
@@ -24,10 +17,21 @@ import {
   Page,
 } from '@backstage/core-components';
 import { useApi } from '@backstage/core-plugin-api';
+import { SearchType } from '@backstage/plugin-search';
+import {
+  SearchBar,
+  SearchFilter,
+  SearchPagination,
+  SearchResult,
+  useSearch,
+} from '@backstage/plugin-search-react';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme: Theme) => ({
-  bar: {
-    padding: theme.spacing(1, 0),
+const useStyles = makeStyles()(theme => ({
+  searchBar: {
+    borderRadius: '50px',
+    margin: 'auto',
+    boxShadow: theme.shadows.at(1),
   },
   filters: {
     padding: theme.spacing(2),
@@ -38,10 +42,13 @@ const useStyles = makeStyles((theme: Theme) => ({
       marginTop: theme.spacing(2.5),
     },
   },
+  notchedOutline: {
+    borderStyle: 'none!important',
+  },
 }));
 
 export const SearchPage = () => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { types } = useSearch();
   const catalogApi = useApi(catalogApiRef);
 
@@ -51,9 +58,15 @@ export const SearchPage = () => {
       <Content>
         <Grid container direction="row">
           <Grid item xs={12}>
-            <Paper className={classes.bar}>
-              <SearchBar />
-            </Paper>
+            {/* useStyles has a lower precedence over mui styles hence why we need use use css */}
+            <SearchBar
+              InputProps={{
+                classes: {
+                  notchedOutline: classes.notchedOutline,
+                },
+              }}
+              className={classes.searchBar}
+            />
           </Grid>
           <Grid item xs={3}>
             <SearchType.Accordion

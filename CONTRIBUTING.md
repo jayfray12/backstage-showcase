@@ -1,6 +1,6 @@
 # Contributing
 
-We are excited to see you want to be a part of this project by contributing. Here is some information on how to get started as well as some knowledge on our requirements.
+We are excited to see you want to be a part of this project by contributing. Here is some information on how to get started, as well as some knowledge on our requirements.
 
 ## Get Started
 
@@ -25,7 +25,7 @@ yarn test:e2e
 yarn lint # Lint packages
 yarn ci # Mirrors our CI in GitHub
 yarn prettier:check # Checks for formatting errors
-yarn prettier:write # Fixes formatting errors
+yarn prettier:fix # Fixes formatting errors
 ```
 
 ## Contributions
@@ -37,6 +37,16 @@ We welcome code and non-code contributions to our project. Non-code contribution
 If you found a bug in our showcase app, please submit an [issue](https://github.com/janus-idp/backstage-showcase/issues/new?assignees=&labels=kind%2Fbug%2Cstatus%2Ftriage&template=bug.md) describing the problem that you ran into. Some important information to include are steps to reproduce the bug, the app-config.yaml that is being used, and any relevant logs. This will help us narrow down the potential cause of the bug and speed up the time it takes to solve the problem at hand.
 
 **Please remember to remove all secrets from the app-config.yaml before sharing.**
+
+### Updating Backstage Dependencies
+
+1. Run the following command
+
+   ```console
+   yarn backstage-cli versions:bump --pattern '@{backstage,roadiehq,immobiliarelabs,janus-idp}/*'
+   ```
+
+2. Find and replace all `"^` with `"` filtered by `package.json` files.
 
 ### Enhancement Requests
 
@@ -60,4 +70,4 @@ A special note. If there will be changes to the [app config](https://github.com/
 
 ## Support
 
-You can reach out to us in our [community slack channel](https://join.slack.com/t/janus-idp/shared_invite/zt-1pxtehxom-fCFtF9rRe3vFqUiFFeAkmg) if you run into any issues with setting up, running, and testing the application. Here members of the team and community can come and assist you with questions and concerns you might have. Even if you don't need help consider joining and being involved in our community.
+You can reach out to us in our [community slack channel](https://join.slack.com/t/janus-idp/shared_invite/zt-1pxtehxom-fCFtF9rRe3vFqUiFFeAkmg) if you run into any issues with setup, running, or testing the application. Members of the team and community can assist you with questions and concerns you might have. Even if you don't need help, please consider joining and being involved in our community.
